@@ -47,7 +47,6 @@ function HomePage({ onStartTest, onReview }: HomePageProps) {
     >
       <div className="bg-white/90 p-20  rounded-md shadow-lg flex flex-col items-center">
         <h1 className="text-2xl font-bold mb-6">Trang Chủ</h1>
-        <img src="/logo192.png" className=" w-20 h-10" alt="test" />
         <Button
           className="p-5 mb-4 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold hover:-translate-y-1 hover:shadow-lg"
           onClick={onStartTest}
@@ -102,7 +101,6 @@ function ReviewPage({ questionData, onGoHome }: ReviewPageProps) {
       }}
       className="flex items-center justify-center h-screen w-screen bg-cover bg-center"
     >
-      <img src="/logo192.png" className="w-10 h-10" alt="test" />
       <div className="bg-white/90 p-6 rounded-md shadow-lg max-w-4xl w-full">
         <h2 className="text-xl font-semibold mb-4">Ôn Tập</h2>
 
