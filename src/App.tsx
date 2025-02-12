@@ -1,40 +1,30 @@
 import React, { useState } from "react";
-import { Steps, Button, Radio, Result } from "antd";
+import { Button, Radio, Table, Result } from "antd";
 import type { RadioChangeEvent } from "antd/es/radio";
+import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import { questionData } from "./questionData";
-import { Table } from "antd";
-const { Step } = Steps;
 
+// -------------------------------------------------------------
+// Data Types
+// -------------------------------------------------------------
 interface Question {
   question: string;
   options: string[];
   correctAnswer: number;
 }
 
-// const questionData: Question[] = [
-//   {
-//     question: "Câu 1: 2 + 2 = ?",
-//     options: ["1", "2", "3", "4"],
-//     correctAnswer: 3,
-//   },
-//   {
-//     question: "Câu 2: Con mèo kêu như thế nào?",
-//     options: ["Gâu gâu", "Chíp chíp", "Meo meo", "Ò ó o"],
-//     correctAnswer: 2,
-//   },
-//   {
-//     question: "Câu 3: Nước nào sau đây ở Châu Âu?",
-//     options: ["Việt Nam", "Pháp", "Nhật Bản", "Hàn Quốc"],
-//     correctAnswer: 1,
-//   },
-// ];
+interface TestSession {
+  questions: Question[];
+  answers: number[];
+  score: number;
+}
 
 interface HomePageProps {
   onStartTest: () => void;
-  onReview: () => void;
+  onPractice: () => void;
 }
 
-function HomePage({ onStartTest, onReview }: HomePageProps) {
+function HomePage({ onStartTest, onPractice }: HomePageProps) {
   return (
     <div
       style={{
@@ -43,19 +33,19 @@ function HomePage({ onStartTest, onReview }: HomePageProps) {
         minHeight: "100vh",
         padding: "20px",
       }}
-      className="flex flex-col items-center justify-center h-screen w-screen bg-cover bg-center"
+      className="flex flex-col items-center justify-center h-screen w-screen"
     >
-      <div className="bg-white/90 p-20  rounded-md shadow-lg flex flex-col items-center">
+      <div className="bg-white/90 p-20 rounded-md shadow-lg flex flex-col items-center">
         <h1 className="text-2xl font-bold mb-6">Trang Chủ</h1>
         <Button
-          className="p-5 mb-4 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold hover:-translate-y-1 hover:shadow-lg"
+          className="p-5 mb-4 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold"
           onClick={onStartTest}
         >
           Trả lời
         </Button>
         <Button
-          className="p-5 bg-gradient-to-r from-green-400 to-teal-500 text-white rounded-md font-bold hover:-translate-y-1 hover:shadow-lg"
-          onClick={onReview}
+          className="p-5 bg-gradient-to-r from-green-400 to-teal-500 text-white rounded-md font-bold"
+          onClick={onPractice}
         >
           Ôn tập
         </Button>
@@ -64,22 +54,179 @@ function HomePage({ onStartTest, onReview }: HomePageProps) {
   );
 }
 
-interface ReviewPageProps {
+// -------------------------------------------------------------
+// TestPage Component (for taking the test)
+// -------------------------------------------------------------
+interface TestPageProps {
   questionData: Question[];
+  onSubmitTest: (answers: number[], questions: Question[]) => void;
   onGoHome: () => void;
 }
 
-function ReviewPage({ questionData, onGoHome }: ReviewPageProps) {
+function TestPage({ questionData, onSubmitTest, onGoHome }: TestPageProps) {
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [answers, setAnswers] = useState<number[]>(
+    Array(questionData.length).fill(-1)
+  );
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
+  const handleOptionChange = (e: RadioChangeEvent) => {
+    const newAnswers = [...answers];
+    newAnswers[currentStep] = e.target.value;
+    setAnswers(newAnswers);
+  };
+
+  const handleNext = () => setCurrentStep((prev) => prev + 1);
+  const handlePrev = () => setCurrentStep((prev) => prev - 1);
+
+  const handleSubmit = () => {
+    setIsSubmitted(true);
+    onSubmitTest(answers, questionData);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div
+        style={{
+          backgroundImage: 'url("/bg.png")',
+          backgroundSize: "cover",
+          minHeight: "100vh",
+          padding: "20px",
+        }}
+        className="flex items-center justify-center h-screen w-screen"
+      >
+        <div className="bg-white/90 p-6 rounded-md shadow-lg text-center">
+          <Result
+            status="success"
+            title="Bạn đã nộp bài!"
+            extra={[
+              <Button
+                key="home"
+                onClick={onGoHome}
+                className="p-2 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-bold"
+              >
+                Về Trang Chủ
+              </Button>,
+            ]}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        backgroundImage: 'url("/bg.png")',
+        backgroundSize: "cover",
+        minHeight: "100vh",
+        padding: "20px",
+      }}
+      className="flex items-center justify-center h-screen w-screen"
+    >
+      <div className="bg-white/90 p-6 rounded-md shadow-lg max-w-lg w-full">
+        {/* Display current question number */}
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-2">
+            Câu {currentStep + 1}/{questionData.length}
+          </h2>
+          <p className="mb-4">{questionData[currentStep].question}</p>
+          <Radio.Group
+            onChange={handleOptionChange}
+            value={answers[currentStep]}
+            className="flex flex-col space-y-2"
+          >
+            {questionData[currentStep].options.map((option, idx) => (
+              <Radio key={idx} value={idx}>
+                {option}
+              </Radio>
+            ))}
+          </Radio.Group>
+        </div>
+        <div className="flex justify-between">
+          {currentStep > 0 && (
+            <Button
+              className="p-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold"
+              onClick={handlePrev}
+            >
+              Trở lại
+            </Button>
+          )}
+          {currentStep < questionData.length - 1 ? (
+            <Button
+              className="p-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold"
+              onClick={handleNext}
+              disabled={answers[currentStep] === -1}
+            >
+              Tiếp theo
+            </Button>
+          ) : (
+            <Button
+              className="p-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold"
+              onClick={handleSubmit}
+              disabled={answers[currentStep] === -1}
+            >
+              Nộp bài
+            </Button>
+          )}
+        </div>
+        <Button
+          className="p-2 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-bold mt-4"
+          onClick={onGoHome}
+        >
+          Về Trang Chủ
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+interface ReviewPageProps {
+  session: TestSession;
+  onGoHome: () => void;
+  onRetry: () => void;
+}
+
+function ReviewPage({ session, onGoHome, onRetry }: ReviewPageProps) {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 4;
+
   const columns = [
     {
       title: "Câu hỏi",
       dataIndex: "question",
       key: "question",
-      render: (text: string, record: Question, index: number) => (
-        <span>
-          <strong>Câu {index + 1}:</strong> {text}
-        </span>
-      ),
+      render: (text: string, record: Question, index: number) => {
+        const absoluteIndex = (currentPage - 1) * pageSize + index + 1;
+        return (
+          <span>
+            <strong>Câu {absoluteIndex}:</strong> {text}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Đáp án của bạn",
+      key: "userAnswer",
+      render: (_: any, record: Question, index: number) => {
+        const userAnswer = session.answers[index];
+        const answeredText =
+          userAnswer !== -1 ? record.options[userAnswer] : "Chưa trả lời";
+        const isCorrect = userAnswer === record.correctAnswer;
+        return (
+          <span>
+            {answeredText}{" "}
+            {userAnswer !== -1 &&
+              (isCorrect ? (
+                <CheckCircleTwoTone twoToneColor="#52c41a" />
+              ) : (
+                // If you wish to not color incorrect answers red,
+                // simply remove the icon or style accordingly.
+                <CloseCircleTwoTone twoToneColor="#ff4d4f" />
+              ))}
+          </span>
+        );
+      },
     },
     {
       title: "Đáp án đúng",
@@ -99,93 +246,91 @@ function ReviewPage({ questionData, onGoHome }: ReviewPageProps) {
         minHeight: "100vh",
         padding: "20px",
       }}
-      className="flex items-center justify-center h-screen w-screen bg-cover bg-center"
+      className="flex items-center justify-center h-screen w-screen"
     >
       <div className="bg-white/90 p-6 rounded-md shadow-lg max-w-4xl w-full">
-        <h2 className="text-xl font-semibold mb-4">Ôn Tập</h2>
-
+        <h2 className="text-xl font-semibold mb-4">
+          Kết quả: Điểm {session.score}/{session.questions.length}
+        </h2>
         <Table
-          dataSource={questionData}
+          dataSource={session.questions}
           columns={columns}
           rowKey={(record, index) => `${index}`}
-          pagination={{ pageSize: 3 }}
+          pagination={{
+            pageSize: pageSize,
+            onChange: (page) => setCurrentPage(page),
+          }}
         />
-        <Button
-          key="home"
-          onClick={onGoHome}
-          className="p-2 mt-4 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-bold hover:-translate-y-1 hover:shadow-lg"
-        >
-          Về Trang Chủ
-        </Button>
+        <div className="mt-4">
+          <Button
+            onClick={onRetry}
+            className="p-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold"
+          >
+            Làm lại
+          </Button>
+          <Button
+            onClick={onGoHome}
+            className="p-2 ml-2 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-bold"
+          >
+            Về Trang Chủ
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
 
-interface TestPageProps {
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+}
+
+interface PracticePageProps {
   questionData: Question[];
   onGoHome: () => void;
 }
 
-function TestPage({ questionData, onGoHome }: TestPageProps) {
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [answers, setAnswers] = useState<number[]>(
-    Array(questionData.length).fill(-1)
-  );
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+export function PracticePage({ questionData, onGoHome }: PracticePageProps) {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 2;
 
-  const score = answers.reduce((acc, ans, idx) => {
-    return ans === questionData[idx].correctAnswer ? acc + 1 : acc;
-  }, 0);
-
-  const handleOptionChange = (e: RadioChangeEvent) => {
-    const arr = [...answers];
-    arr[currentStep] = e.target.value;
-    setAnswers(arr);
-  };
-
-  const handleNext = () => setCurrentStep((prev) => prev + 1);
-  const handlePrev = () => setCurrentStep((prev) => prev - 1);
-  const handleSubmit = () => setIsSubmitted(true);
-
-  if (isSubmitted) {
-    return (
-      <div
-        style={{
-          backgroundImage: 'url("/bg.png")',
-          backgroundSize: "cover",
-          minHeight: "100vh",
-          padding: "20px",
-        }}
-        className="flex items-center justify-center h-screen w-screen bg-cover bg-center"
-      >
-        <div className="bg-white/90 p-6 rounded-md shadow-lg text-center">
-          <Result
-            status="success"
-            title="Bạn đã nộp bài!"
-            subTitle={`Điểm: ${score}/${questionData.length}`}
-            extra={[
-              <Button
-                type="primary"
-                key="back"
-                onClick={() => window.location.reload()}
-                className="p-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold hover:-translate-y-1 hover:shadow-lg"
-              >
-                Làm lại
-              </Button>,
-              <Button
-                key="home"
-                onClick={onGoHome}
-                className="p-2 ml-2 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-bold hover:-translate-y-1 hover:shadow-lg"
-              >
-                Về Trang Chủ
-              </Button>,
-            ]}
-          />
-        </div>
-      </div>
-    );
-  }
+  const columns = [
+    {
+      title: "Câu hỏi",
+      dataIndex: "question",
+      key: "question",
+      render: (text: string, record: Question, index: number) => {
+        const absoluteIndex = (currentPage - 1) * pageSize + index + 1;
+        return (
+          <span>
+            <strong>Câu {absoluteIndex}:</strong> {text}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Các đáp án",
+      key: "options",
+      render: (_: any, record: Question) => {
+        return (
+          <div>
+            {record.options.map((option, idx) => {
+              const isCorrect = idx === record.correctAnswer;
+              return (
+                <div
+                  key={idx}
+                  style={{ color: isCorrect ? "green" : "inherit" }}
+                >
+                  {option}
+                </div>
+              );
+            })}
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div
@@ -195,65 +340,24 @@ function TestPage({ questionData, onGoHome }: TestPageProps) {
         minHeight: "100vh",
         padding: "20px",
       }}
-      className="flex items-center justify-center h-screen w-screen bg-cover bg-center"
+      className="flex items-center justify-center h-screen w-screen"
     >
-      <div className="bg-white/90 p-6 rounded-md shadow-lg max-w-lg w-full">
-        <Steps current={currentStep} size="small" className="mb-4">
-          {questionData.map((_, i) => (
-            <Step key={i} />
-          ))}
-        </Steps>
+      <div className="bg-white/90 p-6 rounded-md shadow-lg max-w-4xl w-full">
+        <h2 className="text-xl font-semibold mb-4">Ôn tập toàn bộ câu hỏi</h2>
 
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">
-            {questionData[currentStep].question}
-          </h2>
-          <Radio.Group
-            onChange={handleOptionChange}
-            value={answers[currentStep]}
-            className="flex flex-col space-y-2"
-          >
-            {questionData[currentStep].options.map((option, idx) => (
-              <Radio key={idx} value={idx}>
-                {option}
-              </Radio>
-            ))}
-          </Radio.Group>
-        </div>
-        <div className="flex justify-between">
-          {currentStep > 0 ? (
-            <Button
-              className="p-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold mb-2 hover:-translate-y-1 hover:shadow-lg"
-              onClick={handlePrev}
-            >
-              Trở lại
-            </Button>
-          ) : (
-            <div />
-          )}
-          {currentStep < questionData.length - 1 ? (
-            <Button
-              className="p-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold mb-2 hover:-translate-y-1 hover:shadow-lg"
-              type="primary"
-              onClick={handleNext}
-              disabled={answers[currentStep] === -1}
-            >
-              Tiếp theo
-            </Button>
-          ) : (
-            <Button
-              className="p-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-bold mb-2 hover:-translate-y-1 hover:shadow-lg"
-              type="primary"
-              onClick={handleSubmit}
-              disabled={answers[currentStep] === -1}
-            >
-              Nộp bài
-            </Button>
-          )}
-        </div>
+        <Table
+          dataSource={questionData}
+          columns={columns}
+          rowKey={(record, index) => `${index}`}
+          pagination={{
+            pageSize: pageSize,
+            onChange: (page) => setCurrentPage(page),
+          }}
+        />
+
         <Button
-          className="p-2 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-bold mt-4 hover:-translate-y-1 hover:shadow-lg"
           onClick={onGoHome}
+          className="p-2 mt-4 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-bold"
         >
           Về Trang Chủ
         </Button>
@@ -262,19 +366,76 @@ function TestPage({ questionData, onGoHome }: TestPageProps) {
   );
 }
 
+function shuffleArray<T>(array: T[]): T[] {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+// -------------------------------------------------------------
+// Main App Component
+// -------------------------------------------------------------
 export default function App(): JSX.Element {
-  const [page, setPage] = useState<"home" | "test" | "review">("home");
+  const [page, setPage] = useState<"home" | "test" | "review" | "practice">(
+    "home"
+  );
+  const [testSession, setTestSession] = useState<TestSession | null>(null);
+  const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
 
   const goHome = () => setPage("home");
-  const startTest = () => setPage("test");
-  const review = () => setPage("review");
 
-  if (page === "home")
-    return <HomePage onStartTest={startTest} onReview={review} />;
-  if (page === "test")
-    return <TestPage questionData={questionData} onGoHome={goHome} />;
-  if (page === "review")
-    return <ReviewPage questionData={questionData} onGoHome={goHome} />;
+  const startTest = () => {
+    const shuffled = shuffleArray(questionData);
+    const selected = shuffled.length >= 40 ? shuffled.slice(0, 40) : shuffled;
+    setSelectedQuestions(selected);
+    setTestSession(null);
+    setPage("test");
+  };
 
-  return <div>404 - Page Not Found</div>;
+  const submitTest = (answers: number[], questions: Question[]) => {
+    const score = answers.reduce(
+      (acc, ans, idx) => (ans === questions[idx].correctAnswer ? acc + 1 : acc),
+      0
+    );
+    setTestSession({ questions, answers, score });
+    setPage("review");
+  };
+
+  const retryTest = () => {
+    startTest();
+  };
+
+  const goPractice = () => setPage("practice");
+
+  return (
+    <>
+      {page === "home" && (
+        <HomePage onStartTest={startTest} onPractice={goPractice} />
+      )}
+      {page === "test" && (
+        <TestPage
+          questionData={selectedQuestions}
+          onSubmitTest={submitTest}
+          onGoHome={goHome}
+        />
+      )}
+      {page === "review" && testSession && (
+        <ReviewPage
+          session={testSession}
+          onGoHome={goHome}
+          onRetry={retryTest}
+        />
+      )}
+      {page === "practice" && (
+        <PracticePage questionData={questionData} onGoHome={goHome} />
+      )}
+      {page !== "home" &&
+        page !== "test" &&
+        page !== "review" &&
+        page !== "practice" && <div>404 - Page Not Found</div>}
+    </>
+  );
 }
