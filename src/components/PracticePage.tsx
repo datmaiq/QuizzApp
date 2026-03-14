@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Button, Table, Input, Pagination } from "antd";
+import { Button, Table, Input} from "antd";
 import { House, Books, MagnifyingGlass, Check } from "phosphor-react";
 import type { PracticePageProps, Question } from "../types";
 
