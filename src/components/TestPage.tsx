@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button, Radio, Result } from "antd";
+import { CaretLeft, CaretRight, CheckCircle, House } from "phosphor-react";
 import type { RadioChangeEvent } from "antd/es/radio";
 import type { TestPageProps } from "../types";
 
@@ -28,8 +29,7 @@ export function TestPage({ questionData, onSubmitTest, onGoHome }: TestPageProps
     return (
       <div
         style={{
-          backgroundImage: 'url("/bg.png")',
-          backgroundSize: "cover",
+          backgroundColor: "#f5f5f5",
           minHeight: "100vh",
           padding: "20px",
         }}
@@ -43,9 +43,9 @@ export function TestPage({ questionData, onSubmitTest, onGoHome }: TestPageProps
               <Button
                 key="home"
                 onClick={onGoHome}
-                className="p-2 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-bold"
+                className="p-3 bg-white text-slate-700 border border-slate-300 rounded-md font-medium hover:bg-slate-50 transition-all duration-300"
               >
-                Về Trang Chủ
+                <span className="flex items-center gap-1"><House size={18} /> Về Trang Chủ</span>
               </Button>,
             ]}
           />
@@ -57,8 +57,7 @@ export function TestPage({ questionData, onSubmitTest, onGoHome }: TestPageProps
   return (
     <div
       style={{
-        backgroundImage: 'url("/bg.png")',
-        backgroundSize: "cover",
+        backgroundColor: "#f5f5f5",
         minHeight: "100vh",
         padding: "16px",
       }}
@@ -117,37 +116,37 @@ export function TestPage({ questionData, onSubmitTest, onGoHome }: TestPageProps
         <div className="flex-shrink-0 border-t pt-4">
           <div className="flex justify-between items-center mb-3">
             <Button
-              className="px-4 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-md font-medium disabled:opacity-50"
+              className="px-4 py-2 bg-slate-100 text-slate-600 rounded-md font-medium disabled:opacity-40 hover:bg-slate-200 transition-all duration-300 border border-slate-200"
               onClick={handlePrev}
               disabled={currentStep === 0}
             >
-              ← Trở lại
+              <span className="flex items-center gap-1"><CaretLeft size={18} /> Trở lại</span>
             </Button>
             
             {currentStep < questionData.length - 1 ? (
               <Button
-                className="px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-md font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-slate-800 text-white rounded-md font-medium disabled:opacity-50 hover:bg-slate-700 transition-all duration-300 shadow-sm"
                 onClick={handleNext}
                 disabled={answers[currentStep] === -1}
               >
-                Tiếp theo →
+                <span className="flex items-center gap-1">Tiếp theo <CaretRight size={18} /></span>
               </Button>
             ) : (
               <Button
-                className="px-4 py-2 bg-gradient-to-r from-green-400 to-teal-500 text-white rounded-md font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-slate-800 text-white rounded-md font-medium disabled:opacity-50 hover:bg-slate-700 transition-all duration-300 shadow-sm"
                 onClick={handleSubmit}
                 disabled={answers[currentStep] === -1}
               >
-                ✓ Nộp bài
+                <span className="flex items-center gap-1"><CheckCircle size={18} /> Nộp bài</span>
               </Button>
             )}
           </div>
           
           <Button
-            className="w-full p-2 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-md font-medium"
+            className="w-full p-2 bg-transparent text-slate-500 hover:text-slate-700 font-medium transition-colors duration-300"
             onClick={onGoHome}
           >
-            Về Trang Chủ
+            <span className="flex items-center gap-1"><House size={18} /> Về Trang Chủ</span>
           </Button>
         </div>
       </div>

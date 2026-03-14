@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { Button, Table, Input } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Button, Table, Input, Pagination } from "antd";
+import { House, Books, MagnifyingGlass, Check } from "phosphor-react";
 import type { PracticePageProps, Question } from "../types";
 
 export function PracticePage({ questionData, onGoHome }: PracticePageProps) {
@@ -66,7 +66,7 @@ export function PracticePage({ questionData, onGoHome }: PracticePageProps) {
                   style={{ color: isCorrect ? "green" : "inherit", fontWeight: isCorrect ? "bold" : "normal" }}
                 >
                   {highlightText(option, searchTerm)}
-                  {isCorrect && <span className="ml-2">✓</span>}
+                  {isCorrect && <Check size={16} weight="bold" className="ml-2 text-green-600" />}
                 </div>
               );
             })}
@@ -79,8 +79,7 @@ export function PracticePage({ questionData, onGoHome }: PracticePageProps) {
   return (
     <div
       style={{
-        backgroundImage: 'url("/bg.png")',
-        backgroundSize: "cover",
+        backgroundColor: "#f5f5f5",
         minHeight: "100vh",
         padding: "20px",
       }}
@@ -88,19 +87,19 @@ export function PracticePage({ questionData, onGoHome }: PracticePageProps) {
     >
       <div className="bg-white/90 p-4 sm:p-6 rounded-xl shadow-xl max-w-5xl w-full mx-4 max-h-[calc(100vh-32px)] flex flex-col">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center text-gray-800">
-          📚 Ôn tập toàn bộ câu hỏi
+          <span className="flex items-center justify-center gap-2"><Books size={24} /> Ôn tập toàn bộ câu hỏi</span>
         </h2>
 
         {/* Search bar */}
         <div className="mb-4">
           <Input
-            placeholder="🔍 Tìm kiếm câu hỏi hoặc đáp án..."
+            placeholder="Tìm kiếm câu hỏi hoặc đáp án..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setCurrentPage(1); // Reset to first page when searching
             }}
-            prefix={<SearchOutlined />}
+            prefix={<MagnifyingGlass size={16} />}
             allowClear
             className="w-full"
             size="large"
@@ -130,9 +129,9 @@ export function PracticePage({ questionData, onGoHome }: PracticePageProps) {
 
         <Button
           onClick={onGoHome}
-          className="mt-4 p-3 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-lg font-bold w-full sm:w-auto sm:self-center"
+          className="mt-4 p-3 bg-white text-slate-700 border border-slate-300 rounded-md font-medium w-full sm:w-auto sm:self-center hover:bg-slate-50 transition-all duration-300 shadow-sm"
         >
-          🏠 Về Trang Chủ
+          <span className="flex items-center justify-center gap-2"><House size={18} /> Về Trang Chủ</span>
         </Button>
       </div>
     </div>

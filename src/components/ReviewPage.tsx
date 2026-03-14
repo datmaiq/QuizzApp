@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Table } from "antd";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
+import { House, ArrowCounterClockwise } from "phosphor-react";
 import type { ReviewPageProps, Question } from "../types";
 
 export function ReviewPage({ session, onGoHome, onRetry }: ReviewPageProps) {
@@ -55,8 +56,7 @@ export function ReviewPage({ session, onGoHome, onRetry }: ReviewPageProps) {
   return (
     <div
       style={{
-        backgroundImage: 'url("/bg.png")',
-        backgroundSize: "cover",
+        backgroundColor: "#f5f5f5",
         minHeight: "100vh",
         padding: "20px",
       }}
@@ -84,15 +84,15 @@ export function ReviewPage({ session, onGoHome, onRetry }: ReviewPageProps) {
         <div className="mt-4 flex flex-col sm:flex-row gap-2">
           <Button
             onClick={onRetry}
-            className="flex-1 p-3 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-lg font-bold"
+            className="flex-1 p-3 bg-slate-800 text-white rounded-md font-medium hover:bg-slate-700 transition-all duration-300 shadow-sm"
           >
-            🔄 Làm lại
+            <span className="flex items-center justify-center gap-2"><ArrowCounterClockwise size={18} /> Làm lại</span>
           </Button>
           <Button
             onClick={onGoHome}
-            className="flex-1 p-3 bg-gradient-to-r from-gray-300 to-gray-400 text-black rounded-lg font-bold"
+            className="flex-1 p-3 bg-white text-slate-700 border border-slate-300 rounded-md font-medium hover:bg-slate-50 transition-all duration-300 shadow-sm"
           >
-            🏠 Về Trang Chủ
+            <span className="flex items-center justify-center gap-2"><House size={18} /> Về Trang Chủ</span>
           </Button>
         </div>
       </div>
